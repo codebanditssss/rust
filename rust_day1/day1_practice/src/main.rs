@@ -129,10 +129,19 @@
 //---------------------------
 
 // some mistakes 
+//1. mixing types without explicit casting
 
-fn main(){
-    let x: i32 = 22;
-    let y: f32 = 2.5;
-    let z = x + y; // type mismatch
-    println!("x + y = {}", z);  // correct: let z = x as f32 + y;
-}
+// fn main(){
+//     let x: i32 = 22;
+//     let y: f32 = 2.5;
+//     let z = x + y; // type mismatch
+//     println!("x + y = {}", z);  // correct: let z = x as f32 + y;
+// }
+
+//2. reassigning a const
+// const PI: f32 = 3.14;
+// PI = 3.14159; // cannot assign to const
+
+//3. not declaring type for constants
+// const MAX = 100; // type must be explicit
+// const MAX: i32 = 100; // correct

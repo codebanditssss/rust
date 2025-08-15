@@ -56,8 +56,28 @@
 
 // next part step 1- immutable variables
 
+// fn main() {
+//     let x = 22;
+//     println!("x is {}", x);
+//     x = 33; // this will give error because x is immutable by default
+// }
+
+//--------------------------
+
+// step 2- Mutable Variables
+
 fn main() {
     let x = 22;
+    let x = 2.5;
     println!("x is {}", x);
-    x = 33; // this will give error because x is immutable by default
 }
+
+// here, i didnt use mut
+// the compiler did not throw an error because this is shadowing, not mutation
+// shadowing means you r allowed to declare a new variable with the same name. rust sees it as a brand new variable
+// so the first x is shadowed by the second x, which is a new variable
+
+// let mut x = 22;
+// even though x was mutable initially, the moment you write let x = 2.5;
+// you are shadowing, so the mut on the first x doesnt matter
+// shadowing creates a new variable — it separate from the previous mut variable

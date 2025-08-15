@@ -93,12 +93,26 @@
 
 // step 3- Constants
 
-fn main() {
-    const PI: f32 = 3.14;
-    println!("PI = {}", PI);
-}
+// fn main() {
+//     const PI: f32 = 3.14;
+//     println!("PI = {}", PI);
+// }
 
 // must declare type explicitly
 // immutable, cannot reassign
 // forgetting type - compile error
 // trying mut const PI - invalid
+
+//--------------------------
+
+// step 4- shadowing
+
+fn main() {
+    let x = 22;
+    let x = x + 1; // shadowing
+    println!("x is {}", x);
+}
+
+
+// shadowing allows “reassigning” immutable variables and useful for changing type or transforming values
+// mistakes: using mut and shadowing at the same time unnecessarily and forgetting new let - compile error

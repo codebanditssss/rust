@@ -52,3 +52,15 @@ fn main() {
 
     println!("hello, {}! u are {} years old.", name.trim(), age);
 }
+
+
+// common mistakes:
+
+// Forget mut → cannot pass variable to read_line
+// Forget .trim() → parse may fail
+// Forget .parse() → type mismatch
+// Forget .unwrap() → you have a Result instead of integer
+// Shadowing vs mutation confusion:
+// let age = age.trim().parse().unwrap(); //  shadowing
+// Inputting wrong type → program panics
+// Using &str instead of String → cannot store mutable input

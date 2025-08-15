@@ -26,7 +26,19 @@
 // Question:
 // Declare a constant MAX_USERS = 100 and print it.
 
+// fn main() {
+//     const MAX_USERS: i32 = 100;
+//     println!("Max users = {}", MAX_USERS);
+// }
+
+// Exercise 4 — Multiple Variables
+
+// Question:
+// Declare three variables: name as string, age as integer, score as float. Print them in one sentence.
+
 fn main() {
-    const MAX_USERS: i32 = 100;
-    println!("Max users = {}", MAX_USERS);
+    let name = "aash";
+    let age: i32 = 21;
+    let score: f32 = 22.0;
+    println!("my name is {}, i am {} years old and my score is {}", name, age, score);
 }

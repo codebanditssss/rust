@@ -107,12 +107,32 @@
 
 // step 4- shadowing
 
-fn main() {
-    let x = 22;
-    let x = x + 1; // shadowing
-    println!("x is {}", x);
-}
+// fn main() {
+//     let x = 22;
+//     let x = x + 1; // shadowing
+//     println!("x is {}", x);
+// }
 
 
 // shadowing allows “reassigning” immutable variables and useful for changing type or transforming values
 // mistakes: using mut and shadowing at the same time unnecessarily and forgetting new let - compile error
+
+//--------------------------
+
+// step 5- basic data types
+// i32 -> integer
+// f32 -> float
+// bool -> true/false
+// char -> 'A'
+// &str -> string slice "Hello"
+
+//---------------------------
+
+// some mistakes 
+
+fn main(){
+    let x: i32 = 22;
+    let y: f32 = 2.5;
+    let z = x + y; // type mismatch
+    println!("x + y = {}", z);  // correct: let z = x as f32 + y;
+}

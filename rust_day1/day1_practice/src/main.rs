@@ -1,3 +1,11 @@
 fn main() {
-    println!("Hello, world!");
+    println!("Hello, khushi!"); //here println! is a macro, not a function (hence the !).
 }
+
+// in rust a macro is code that writes code for u before the program is compiled
+// it takes input and generates rust code at compile time 
+// why is println! a macro? ...normal rust functions cant take “variable number of arguments” in the same flexible way (without extra boilerplate), but macros can
+
+
+---
+

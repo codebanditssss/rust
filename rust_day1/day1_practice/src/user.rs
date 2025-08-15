@@ -1,14 +1,14 @@
-use std::io; // input/output module
-fn main() {
-    let mut name = String::new(); // create empty string
-    println!("Enter your name:");
+// use std::io; // input/output module
+// fn main() {
+//     let mut name = String::new(); // create empty string
+//     println!("Enter your name:");
 
-    io::stdin()
-    .read_line(&mut name) // read input into variable
-    .expect("Failed to read line"); // handle error if any
+//     io::stdin()
+//     .read_line(&mut name) // read input into variable
+//     .expect("Failed to read line"); // handle error if any
 
-    println!("Hello, {}!", name); 
-}
+//     println!("Hello, {}!", name); 
+// }
 
 // String::new() -> creates empty string
 // read_line(&mut name) -> fills variable with user input
@@ -23,3 +23,16 @@ fn main() {
 // use .trim() to remove the newline and any extra whitespace
 // .trim() removes leading and trailing whitespace, including \n and spaces
 // println!("Hello, {}!", name.trim());
+
+use std::io;
+fn main() {
+    let mut age = String::new();
+    println!("Enter your age:");
+
+    io::stdin()
+        .read_line(&mut age)
+        .expect("Failed to read line");
+
+    let age: i32 = age.trim().parse().unwrap(); 
+    println!("Your age is {}", age);
+}

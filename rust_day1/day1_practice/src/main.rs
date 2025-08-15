@@ -145,3 +145,14 @@
 //3. not declaring type for constants
 // const MAX = 100; // type must be explicit
 // const MAX: i32 = 100; // correct
+
+//4. shadowing with type change
+
+fn main() {
+    let x = "5"; // &str
+    let x: i32 = x.parse().unwrap(); // shadowing with type change
+    println!("x is {}", x); // prints: x is 5
+}
+
+// if we remove the line 153 it will wont give any error because the type of x is still &str
+// but if we write let x: i32 = 5; // this will give error because we are trying to shadow a variable with a different type without parsing

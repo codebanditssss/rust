@@ -81,3 +81,9 @@ fn main() {
 // even though x was mutable initially, the moment you write let x = 2.5;
 // you are shadowing, so the mut on the first x doesnt matter
 // shadowing creates a new variable — it separate from the previous mut variable
+
+// let x = 5;
+// x = 10; //  error: cannot assign twice to immutable variable
+
+// let mut x = 5;
+// x = 2.5; // error: expected integer, found float

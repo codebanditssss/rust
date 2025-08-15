@@ -22,8 +22,19 @@
 
 //step 3- adding numbered placeholders
 
-fn main() {
-    println!("{0}, meet {1}. {1}, meet {0}.", "kiki", "ash");
-}
+// fn main() {
+//     println!("{0}, meet {1}. {1}, meet {0}.", "kiki", "ash");
+// }
 
 // {0} and {1} let you reuse arguments without repeating
+
+
+//----------------------
+
+//step 4- named placeholders
+
+fn main() {
+    println!("{first} and {second} are learning rust", first = "ash", second ="kiki");
+}
+
+// good for readability

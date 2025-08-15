@@ -14,9 +14,19 @@
 //Question:
 //Use shadowing to convert a string "42" to an integer and add 8.   
 
+// fn main() {
+//     let kiki = "42";
+//     let kiki: i32 = kiki.parse().unwrap(); 
+//     let kiki = kiki + 8; 
+//     println!("Kiki is {}", kiki);
+// }
+
+
+//Exercise 3 — Constants
+// Question:
+// Declare a constant MAX_USERS = 100 and print it.
+
 fn main() {
-    let kiki = "42";
-    let kiki: i32 = kiki.parse().unwrap(); 
-    let kiki = kiki + 8; 
-    println!("Kiki is {}", kiki);
+    const MAX_USERS: i32 = 100;
+    println!("Max users = {}", MAX_USERS);
 }

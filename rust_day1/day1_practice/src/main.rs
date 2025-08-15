@@ -33,8 +33,22 @@
 
 //step 4- named placeholders
 
-fn main() {
-    println!("{first} and {second} are learning rust", first = "ash", second ="kiki");
-}
+// fn main() {
+//     println!("{first} and {second} are learning rust", first = "ash", second ="kiki");
+// }
 
 // good for readability
+
+
+//----------------------
+
+// step 5- formatting options
+
+fn main() {
+    println!("pi is roughly {pi:.3}", pi = 3.14159);
+    println!("{:.2}", "Hello"); //  can't format a string as float
+
+    // u expected this to fail because "Hello" is a string and :.2 looks like “round to 2 decimal places” (float formatting)
+    // but in rust’s println!, the meaning of .precision actually depends on the type you r formatting
+}
+

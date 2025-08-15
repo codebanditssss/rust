@@ -66,11 +66,11 @@
 
 // step 2- Mutable Variables
 
-fn main() {
-    let x = 22;
-    let x = 2.5;
-    println!("x is {}", x);
-}
+// fn main() {
+//     let x = 22;
+//     let x = 2.5;
+//     println!("x is {}", x);
+// }
 
 // here, i didnt use mut
 // the compiler did not throw an error because this is shadowing, not mutation
@@ -87,3 +87,18 @@ fn main() {
 
 // let mut x = 5;
 // x = 2.5; // error: expected integer, found float
+
+
+//--------------------------
+
+// step 3- Constants
+
+fn main() {
+    const PI: f32 = 3.14;
+    println!("PI = {}", PI);
+}
+
+// must declare type explicitly
+// immutable, cannot reassign
+// forgetting type - compile error
+// trying mut const PI - invalid

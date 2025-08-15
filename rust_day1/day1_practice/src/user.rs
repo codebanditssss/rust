@@ -24,15 +24,31 @@
 // .trim() removes leading and trailing whitespace, including \n and spaces
 // println!("Hello, {}!", name.trim());
 
-use std::io;
-fn main() {
-    let mut age = String::new();
-    println!("Enter your age:");
+// use std::io;
+// fn main() {
+//     let mut age = String::new();
+//     println!("Enter your age:");
 
-    io::stdin()
-        .read_line(&mut age)
-        .expect("Failed to read line");
+//     io::stdin()
+//         .read_line(&mut age)
+//         .expect("Failed to read line");
+
+//     let age: i32 = age.trim().parse().unwrap(); 
+//     println!("Your age is {}", age);
+// }
+
+use std::io;
+
+fn main() {
+    let mut name = String::new();
+    println!("enter ur name:");
+    io::stdin().read_line(&mut name).expect("failed to read line");
+
+    let mut age = String::new();
+    println!("enter ur age:");
+    io::stdin().read_line(&mut age).expect("failed to read line");
 
     let age: i32 = age.trim().parse().unwrap(); 
-    println!("Your age is {}", age);
+
+    println!("hello, {}! u are {} years old.", name.trim(), age);
 }

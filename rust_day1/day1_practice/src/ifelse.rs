@@ -41,17 +41,32 @@
 
 // nested conditions
 
-fn main() {
-    let anaya = 18;
+// fn main() {
+//     let anaya = 18;
     
-    if anaya >= 18 {
-        println!("anaya is an adult");
-        if anaya < 21 {
-            println!("adult but not 21 yet");
-        } else {
-            println!("adult and 21+");
-        }
+//     if anaya >= 18 {
+//         println!("anaya is an adult");
+//         if anaya < 21 {
+//             println!("adult but not 21 yet");
+//         } else {
+//             println!("adult and 21+");
+//         }
+//     } else {
+//         println!("anaya is a minor");
+//     }
+// }
+
+// using if as an expression
+// in rust, if can return a value
+
+fn main() {
+    let is_day = false;
+
+    let activity = if is_day {
+        "work"
     } else {
-        println!("anaya is a minor");
-    }
+        "sleep"
+    };
+
+    println!("activity: {}", activity);
 }

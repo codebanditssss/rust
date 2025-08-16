@@ -29,12 +29,29 @@
 
 // even or odd
 
-fn main() {
-    let aash = 25;
+// fn main() {
+//     let aash = 25;
 
-    if aash % 2 == 0 {
-        println!("aash is even");
+//     if aash % 2 == 0 {
+//         println!("aash is even");
+//     } else {
+//         println!("aash is odd");
+//     }
+// }
+
+// nested conditions
+
+fn main() {
+    let anaya = 18;
+    
+    if anaya >= 18 {
+        println!("anaya is an adult");
+        if anaya < 21 {
+            println!("adult but not 21 yet");
+        } else {
+            println!("adult and 21+");
+        }
     } else {
-        println!("aash is odd");
+        println!("anaya is a minor");
     }
 }

@@ -37,3 +37,17 @@ use std::io;
 
 //External crate = library you bring in from outside (like rand).
 //Enum = a custom type with multiple possible forms (good for state handling).
+
+fn main() {
+    println!("welcome to the guess the number game!");
+
+    loop {
+        // generate random number between 1 and 100
+        let secret_number = rand::thread_rng().gen_range(1..=100); 
+        // here thread_rng() gives us a random number generator
+        // gen_range(1..=100) picks a number between 1 and 100
+
+        // traits = shared behavior contracts
+        // types (structs, enums) must implement them
+        // they can have default methods
+        // they allow polymorphism in rust (different types, same behavior)

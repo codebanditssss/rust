@@ -1,16 +1,16 @@
 // if else in rust
 
-fn main() {
-    let kiki = 22;
+// fn main() {
+//     let kiki = 22;
 
-    if kiki > 0 {
-        println!("kiki is positive");
-    } else if kiki < 0 {
-        println!("kiki is negative");
-    } else {
-        println!("kiki is zero");
-    }
-}
+//     if kiki > 0 {
+//         println!("kiki is positive");
+//     } else if kiki < 0 {
+//         println!("kiki is negative");
+//     } else {
+//         println!("kiki is zero");
+//     }
+// }
 
 // unlike python, rust needs boolean conditions (can’t use integers as truthy/falsy)
 // in python, you can do things like
@@ -26,3 +26,15 @@ fn main() {
 
 
 // in rust, if and else conditions must always evaluate to a bool (true or false), not an integer, string, or any other type
+
+// even or odd
+
+fn main() {
+    let aash = 25;
+
+    if aash % 2 == 0 {
+        println!("aash is even");
+    } else {
+        println!("aash is odd");
+    }
+}

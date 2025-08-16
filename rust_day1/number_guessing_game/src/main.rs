@@ -51,3 +51,57 @@ fn main() {
         // types (structs, enums) must implement them
         // they can have default methods
         // they allow polymorphism in rust (different types, same behavior)
+
+        let mut attempts = 0;
+        let max_attempts = 7;
+
+        println!("i have chosen a number between 1 and 100.");
+        println!("u have {} attempts to guess it. good luck!", max_attempts);
+
+        while attempts < max_attempts {
+            println!("\npls enter ur guess:");
+
+            let mut guess = String::new();
+            io::stdin().read_line(&mut guess).expect("failed to read input");
+
+            let guess: u32 = match guess.trim().parse() {
+                Ok(num) => num,
+                Err(_) => {
+                    println!("pls enter a valid number!");
+                    continue;
+                }
+            };
+
+            attempts += 1;
+
+            println!("u guessed: {}", guess);
+
+            match guess.cmp(&secret_number) {
+                Ordering::Less => println!("too small!"),
+                Ordering::Greater => println!("too big!"),
+                Ordering::Equal => {
+                    println!("congratulations! u guessed it in {} attempts!", attempts);
+                    break;
+                }
+            }
+
+            if attempts == max_attempts {
+                println!("\nu have used all {} attempts!", max_attempts);
+                println!("the secret number was: {}", secret_number);
+            }
+        }
+
+        
+        println!("\ndo u want to play again? (yes/no)");
+
+        let mut play_again = String::new();
+        io::stdin()
+            .read_line(&mut play_again)
+            .expect("failed to read input");
+
+        if play_again.trim().to_lowercase() != "yes" {
+            println!("thanks for playing! goodbye!");
+            break;
+        }
+    }
+}

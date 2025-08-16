@@ -37,6 +37,7 @@ fn main() {
     let diff = kiki - aash;
     let prod = kiki * aash;
     let div = kiki / aash;
+
     
     println!("sum: {}", sum);
     println!("difference: {}", diff);
@@ -44,3 +45,22 @@ fn main() {
     println!("division: {}", div);
 
 }
+
+
+// io::stdin().read_line(&mut kiki)
+// small note
+
+
+// in rust, we use &mut when we want to borrow a value mutably
+// we can modify the borrowed value
+// only one mutable reference can exist at a time (to prevent data races)
+// read_line needs to append the user’s input into the input string
+// that means it must change the string
+// to allow a function to modify a variable without taking ownership
+// we pass a mutable reference (&mut input)
+// if we used just &input
+// it would be an immutable reference, so the function wouldn’t be allowed to modify the string -> compiler error
+// if we didn’t use & at all
+// we had be passing ownership of the variable to the function
+// and after the call, we couldn’t use input anymore
+// &mut is the safe middle ground -> let the function change the value but still keep ownership with us

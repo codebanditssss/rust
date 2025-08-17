@@ -2,6 +2,26 @@ fn calculate_length(s: &String) -> usize {
     s.len() // can read, but not modify
 }
 
+
+// usize
+
+// The return type. usize is an unsigned integer type sized 
+// to hold indices and lengths on the current platform (on 64-bit machines it’s 64 bits, on 32-bit it’s 32 bits).
+// Here it means the function returns the length (number of bytes/chars as usize).
+
+
+// &String
+
+
+// The type of the parameter s. This is a reference to a String.
+// & means “borrow” (pass a reference, not ownership).
+// String is the heap-allocated growable string type in Rust.
+// So s: &String means: the function receives a borrowed reference to a String (read-only here).
+
+
+
+
+
 fn main() {
     let s1 = String::from("hello");
     let len = calculate_length(&s1);
@@ -54,3 +74,7 @@ fn main() {
 // & = borrow, don’t own.
 // Function can read it, but can’t change it.
 // The original variable (s1) is still usable after the function call.
+
+
+
+//-------------------------------------------------------------------------------------

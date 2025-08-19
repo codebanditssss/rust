@@ -4,16 +4,36 @@
 
 // When you pass a non-Copy type (like String) into a function, ownership moves:
 
-fn consume_string(s: String) {
+// fn consume_string(s: String) {
+//     println!("Inside function: {}", s);
+// }
+
+// fn main() {
+//     let name = String::from("Rustacean");
+//     consume_string(name);  
+//     println!("{}", name);   // Error: value borrowed after move
+// }
+
+
+// Error → "borrow of moved value".
+// Reason: String is not Copy. Ownership moved into consume_string().
+
+
+// Solution: Borrowing (&)
+
+// Instead of transferring ownership, you can borrow the value:
+
+fn borrow_string(s: &String) {
     println!("Inside function: {}", s);
 }
 
 fn main() {
     let name = String::from("Rustacean");
-    consume_string(name);  
-    println!("{}", name);   // Error: value borrowed after move
+    borrow_string(&name);  
+    println!("{}", name);   // Works fine, still usable
 }
 
-
-// Error → "borrow of moved value".
-// Reason: String is not Copy. Ownership moved into consume_string().
+// Explanation:
+// &String → means “reference to String”.
+// Function doesn’t take ownership, just borrows it.
+// Caller keeps ownership after the function call.

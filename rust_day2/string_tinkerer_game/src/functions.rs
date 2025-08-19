@@ -82,14 +82,107 @@
 /// Function That Returns a Value
 
 //Rust requires you to specify the return type (if it isn’t () a.k.a unit).
-fn square(x: i32) -> i32 {
-    x * x  // implicit return
-}
+// fn square(x: i32) -> i32 {
+//     x * x  // implicit return
+// }
 
-fn main() {
-    let result = square(22);
-    println!("square = {}", result);
-}
+// fn main() {
+//     let result = square(22);
+//     println!("square = {}", result);
+// }
 
 // no semicolon ; after x * x
 // if you add ;, it becomes a statement and returns nothing (()), leading to an error
+
+
+// Explicit return
+fn cube(x: i32) -> i32 {
+    x * x * x
+}
+
+fn main() {
+    let result = cube(6);
+    println!("cube = {}", result);
+}
+
+
+// How Returning Works in Rust
+
+// Statements vs Expressions
+// Statements: Do something, but don’t return a value.
+// let x = 5;   // statement
+
+// Expressions: Produce a value.
+// 5 + 3   // expression, evaluates to 8
+
+// In Rust, functions return the value of the last expression inside them.
+
+
+
+// Using Explicit return
+// fn cube(x: i32) -> i32 {
+//     return x * x * x;
+// }
+
+// return immediately exits the function.
+// You can use it anywhere, not just at the end.
+// This is handy when you want to exit early (like in conditionals).
+
+
+// fn absolute_value(x: i32) -> i32 {
+//     if x < 0 {
+//         return -x;   // exit early
+//     }
+//     x  // last expression for non-negative
+// }
+
+//Implicit Return (Last Expression Style)
+
+// fn cube(x: i32) -> i32 {
+//     x * x * x  // no `return`, no semicolon
+// }
+
+
+// Cleaner, more idiomatic Rust.
+// The last expression is automatically returned.
+// No semicolon at the end, because ; turns an expression into a statement.
+
+//so 
+
+// fn cube(x: i32) -> i32 {
+//     x * x * x;  //  This becomes a statement → returns `()`
+// }
+
+// will fail with a type mismatch.
+
+//When to Prefer Each Style
+
+// Use implicit style (last expression) → when function is short and has a single natural return value.
+
+// fn square(x: i32) -> i32 {
+//     x * x
+// }
+
+// Use explicit return →
+// When you want to exit early (like guard clauses).
+// When clarity is more important than brevity.
+
+//Example with early exit:
+
+// fn divide(a: i32, b: i32) -> i32 {
+//     if b == 0 {
+//         return 0;  // graceful handling of division by zero
+//     }
+//     a / b
+// }
+
+
+
+// Last expression → returned automatically.
+// If you add ;, it stops being an expression, so nothing is returned.
+// Explicit return is optional, but idiomatic Rust avoids it unless there’s a good reason (like early exit).
+
+
+// Rust encourages expression-based returns.
+// Explicit return is there when you need to exit early or for clarity.
+// Forgetting and putting a semicolon at the end is the #1 mistake beginners make.

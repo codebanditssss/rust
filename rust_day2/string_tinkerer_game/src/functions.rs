@@ -51,14 +51,14 @@
 
 // Example 3: Function with Parameters & Return Type
 
-fn add(x: i32, y: i32) -> i32 {
-    x + y  // last expression returned implicitly
-}
+// fn add(x: i32, y: i32) -> i32 {
+//     x + y  // last expression returned implicitly
+// }
 
-fn main() {
-    let sum = add(22, 25);
-    println!("The sum is: {}", sum);
-}
+// fn main() {
+//     let sum = add(22, 25);
+//     println!("The sum is: {}", sum);
+// }
 
 // (x: i32, y: i32) are typed parameters.
 // -> i32 means return type is integer.
@@ -74,3 +74,22 @@ fn main() {
 
 //Confusing fn my_fun() {} with fn my_fun() -> i32 {} — one returns nothing, the other must return an integer.
 
+// ---------------------------------------------------------------------------------------------
+
+
+// Returning Values & Expressions
+
+/// Function That Returns a Value
+
+//Rust requires you to specify the return type (if it isn’t () a.k.a unit).
+fn square(x: i32) -> i32 {
+    x * x  // implicit return
+}
+
+fn main() {
+    let result = square(22);
+    println!("square = {}", result);
+}
+
+// no semicolon ; after x * x
+// if you add ;, it becomes a statement and returns nothing (()), leading to an error

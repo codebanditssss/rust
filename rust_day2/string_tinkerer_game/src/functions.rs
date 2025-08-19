@@ -64,3 +64,13 @@ fn main() {
 // -> i32 means return type is integer.
 // The last expression without ; becomes the return value.
 // You could also write return x + y;, but idiomatic Rust avoids unnecessary return
+
+// Forgetting to specify a type:
+// fn print(num) { ... }  // Error, must declare type
+// Adding ; after the last line in a returning function:
+// fn add(x: i32, y: i32) -> i32 {
+//     x + y; // This makes it return ()
+// }
+
+//Confusing fn my_fun() {} with fn my_fun() -> i32 {} — one returns nothing, the other must return an integer.
+

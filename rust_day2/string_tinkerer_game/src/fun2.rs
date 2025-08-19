@@ -73,3 +73,19 @@ fn main() {
     add_one(&mut x);
     println!("{}", x);   //  11
 }
+
+
+//Common Mistakes Here
+
+//Forgetting & when passing → ownership move error.
+//Trying multiple mutable borrows:
+// let mut s = String::from("hi");
+// let r1 = &mut s;
+// let r2 = &mut s;  // error: cannot borrow `s` as mutable more than once
+
+//Mixing immutable and mutable borrows at the same time:
+
+// let mut s = String::from("hi");
+// let r1 = &s;
+// let r2 = &mut s;   //  error
+

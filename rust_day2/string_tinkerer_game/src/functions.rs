@@ -36,14 +36,31 @@
 
 // Example 2: Function with Parameters (but No Return)
 
-fn print_number(num: i32) {
-    println!("The number is: {}", num);
-}
+// fn print_number(num: i32) {
+//     println!("The number is: {}", num);
+// }
 
-fn main() {
-    print_number(22);
-}
+// fn main() {
+//     print_number(22);
+// }
 
 // num: i32 means this function expects an integer parameter.
 // Rust is strictly typed, so you must specify parameter type.
 // Calling without passing the correct type → compiler error.
+
+
+// Example 3: Function with Parameters & Return Type
+
+fn add(x: i32, y: i32) -> i32 {
+    x + y  // last expression returned implicitly
+}
+
+fn main() {
+    let sum = add(22, 25);
+    println!("The sum is: {}", sum);
+}
+
+// (x: i32, y: i32) are typed parameters.
+// -> i32 means return type is integer.
+// The last expression without ; becomes the return value.
+// You could also write return x + y;, but idiomatic Rust avoids unnecessary return

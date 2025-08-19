@@ -46,15 +46,30 @@
 
 //Sometimes you want to modify the value inside a function. For that, you need a mutable borrow.
 
-fn add_exclamation(s: &mut String) {
-    s.push_str("!");
-}
+// fn add_exclamation(s: &mut String) {
+//     s.push_str("!");
+// }
 
-fn main() {
-    let mut greeting = String::from("Hello");
-    add_exclamation(&mut greeting);
-    println!("{}", greeting);  // Hello!
-}
+// fn main() {
+//     let mut greeting = String::from("Hello");
+//     add_exclamation(&mut greeting);
+//     println!("{}", greeting);  // Hello!
+// }
 
 // Only one mutable reference at a time allowed (to prevent data races).
 // You need both the variable and the reference to be mutable (let mut and &mut).
+
+
+
+// Example with Simple Type (i32)
+
+// For Copy types (like integers, floats, bool), ownership isn’t moved — but borrowing still works:
+fn add_one(n: &mut i32) {
+    *n += 1;  // dereference to change value
+}
+
+fn main() {
+    let mut x = 10;
+    add_one(&mut x);
+    println!("{}", x);   //  11
+}

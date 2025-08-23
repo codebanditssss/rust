@@ -3,4 +3,16 @@ name = "error_handling"
 version = "0.1.0"
 edition = "2021"
 
+[[bin]]
+name = "result_basics"
+path = "src/result_basics.rs"
+
+[[bin]]
+name = "result_methods"
+path = "src/result_methods.rs"
+
+[[bin]]
+name = "question_operator"
+path = "src/question_operator.rs"
+
 [dependencies]

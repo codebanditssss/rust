@@ -19,4 +19,8 @@ path = "src/question_operator.rs"
 name = "file_operations"
 path = "src/file_operations.rs"
 
+[[bin]]
+name = "custom_errors"
+path = "src/custom_errors.rs"
+
 [dependencies]

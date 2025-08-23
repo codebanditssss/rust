@@ -64,7 +64,7 @@ fn main() {
     handle_parsed_number(parsed2);
     
     // Common Option methods (alternatives to match)
-    let maybe_name = Some("Alice");
+    let maybe_name = Some("kiki");
     
     // unwrap() - gets the value but panics if None (dangerous!)
     // let name = maybe_name.unwrap(); // only use if you're 100% sure it's Some

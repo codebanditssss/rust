@@ -23,4 +23,8 @@ path = "src/file_operations.rs"
 name = "custom_errors"
 path = "src/custom_errors.rs"
 
+[[bin]]
+name = "result_vs_option"
+path = "src/result_vs_option.rs"
+
 [dependencies]

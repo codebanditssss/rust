@@ -1,651 +1,629 @@
-// star wars episode iv: a new hope - rebel alliance command center
-// a comprehensive text-based strategy game using structs, impl, borrowing, and string manipulation
-// based on the original 1977 movie plot, characters, and locations
+// star wars episode iv: rebel alliance command center
+// interactive strategy game with real player choices and consequences
 
 use std::io;
+use std::io::Write;
 
-// core game entities - main characters and vehicles from episode iv
-
-// rebel personnel struct - represents key characters like luke, leia, han, etc.
-struct RebelPersonnel {
-    name: String,           // luke skywalker, princess leia, han solo, etc.
-    codename: String,       // red five, your highness, your worship, etc.
-    force_sensitivity: u32, // 0-100, luke starts low, grows throughout game
-    combat_skill: u32,      // fighting ability
-    leadership: u32,        // command capability
-    alive: bool,           // survival status during missions
-    current_location: String, // yavin 4, death star, mos eisley, etc.
+// simplified game structs for better interaction
+struct RebelCommander {
+    name: String,
+    reputation: u32,     // 0-100, affects available options
+    force_points: u32,   // special ability points
+    credits: u32,        // money for upgrades
+    alive: bool,
 }
 
-// starship struct - x-wings, millennium falcon, tie fighters, death star
-struct Starship {
-    designation: String,    // red five, millennium falcon, death star, etc.
-    ship_class: String,     // x-wing, yt-1300, space station, etc.
-    hull_integrity: u32,    // 0-100 health points
-    shield_strength: u32,   // defensive capability
-    weapons_power: u32,     // offensive capability
-    operational: bool,      // working condition
-    current_sector: String, // yavin system, alderaan system, etc.
+struct GameState {
+    commander: RebelCommander,
+    ships_available: u32,     // number of ships in fleet
+    pilots_available: u32,    // number of pilots
+    death_star_plans: bool,   // key plot item
+    leia_rescued: bool,       // mission status
+    obi_wan_alive: bool,      // affects force training
+    current_phase: u32,       // 1-4 game progression
+    game_over: bool,
 }
 
-// rebel base struct - yavin 4 base, tantive iv, etc.
-struct RebelBase {
-    name: String,          // yavin 4 base, echo base (future), etc.
-    has_death_star_plans: bool, // critical plot element
-}
-
-
-
-// droid struct - r2-d2, c-3po from the movie
-struct Droid {
-    designation: String,   // r2-d2, c-3po, etc.
-    has_data: bool,       // r2 has death star plans
-}
-
-// tuple structs for game mechanics
-struct Resources(u32, u32, u32);      // credits, fuel, intelligence points
-struct MissionStats(u32, u32, u32);   // success rate, casualties, objectives completed
-
-// imperial message struct for decoding mini-games
-struct ImperialTransmission {
-    encrypted_message: String,  // coded imperial communications
-    decoded_message: String,    // what it actually says
-    priority_level: u32,       // how important the intel is
-    intercepted_from: String,   // death star, star destroyer, etc.
-}
-
-// implementation blocks for game functionality
-
-impl RebelPersonnel {
-    // create new rebel character with episode iv stats
-    fn new(name: String, codename: String) -> RebelPersonnel {
-        // different starting stats based on character from movie
-        let (force_sens, combat, leadership) = match name.as_str() {
-            "luke skywalker" => (25, 60, 50),     // farm boy with potential
-            "princess leia" => (20, 70, 95),      // natural leader
-            "han solo" => (0, 85, 60),            // smuggler skills
-            "chewbacca" => (0, 90, 40),           // wookiee strength
-            "obi-wan kenobi" => (95, 90, 85),     // jedi master
-            _ => (10, 50, 50),                     // generic rebel
-        };
-        
-        RebelPersonnel {
+impl RebelCommander {
+    fn new(name: String) -> RebelCommander {
+        RebelCommander {
             name,
-            codename,
-            force_sensitivity: force_sens,
-            combat_skill: combat,
-            leadership: leadership,
+            reputation: 50,     // start with average reputation
+            force_points: 0,    // earn through choices
+            credits: 100,       // starting money
             alive: true,
-            current_location: String::from("yavin 4"),
         }
     }
     
-    // training increases abilities - luke's journey in the movie
-    fn train_abilities(&mut self) {
-        // force training like with obi-wan
-        if self.name == "luke skywalker" {
-            self.force_sensitivity += 15;
-            println!("{} feels the force growing stronger...", self.name);
-        }
-        self.combat_skill += 10;
-        println!("{} has completed training exercises", self.name);
+    // gain reputation from good decisions
+    fn gain_reputation(&mut self, amount: u32) {
+        self.reputation = (self.reputation + amount).min(100);
+        println!("📈 reputation increased by {}! current: {}/100", amount, self.reputation);
     }
     
-    // use the force for special actions - luke destroying death star
-    fn use_force(&self, target: &str) -> bool {
-        if self.force_sensitivity > 50 {
-            println!("{} reaches out with the force to {}", self.name, target);
+    // lose reputation from bad decisions
+    fn lose_reputation(&mut self, amount: u32) {
+        self.reputation = self.reputation.saturating_sub(amount);
+        println!("📉 reputation decreased by {}! current: {}/100", amount, self.reputation);
+    }
+    
+    // earn force points through training
+    fn gain_force_points(&mut self, amount: u32) {
+        self.force_points += amount;
+        println!("✨ gained {} force points! total: {}", amount, self.force_points);
+    }
+    
+    // spend credits on upgrades
+    fn spend_credits(&mut self, amount: u32) -> bool {
+        if self.credits >= amount {
+            self.credits -= amount;
+            println!("💰 spent {} credits. remaining: {}", amount, self.credits);
             true
         } else {
-            println!("{} tries to use the force but lacks training", self.name);
+            println!("❌ not enough credits! need: {}, have: {}", amount, self.credits);
             false
         }
     }
-    
-
 }
 
-impl Starship {
-    // create ships from episode iv
-    fn new(designation: String, ship_class: String) -> Starship {
-        // stats based on ships from the movie
-        let (hull, shields, weapons) = match ship_class.as_str() {
-            "x-wing" => (100, 60, 80),              // rebel fighter
-            "yt-1300" => (120, 70, 75),             // millennium falcon
-            "imperial star destroyer" => (500, 200, 300), // empire ship
-            "death star" => (1000000, 1000, 10000),     // ultimate weapon
-            "tie fighter" => (80, 20, 70),          // imperial fighter
-            _ => (100, 50, 60),                      // generic ship
-        };
-        
-        Starship {
-            designation,
-            ship_class,
-            hull_integrity: hull,
-            shield_strength: shields,
-            weapons_power: weapons,
-            operational: true,
-            current_sector: String::from("outer rim"),
+impl GameState {
+    fn new(commander_name: String) -> GameState {
+        GameState {
+            commander: RebelCommander::new(commander_name),
+            ships_available: 5,      // start with small fleet
+            pilots_available: 8,     // more pilots than ships
+            death_star_plans: false,
+            leia_rescued: false,
+            obi_wan_alive: true,
+            current_phase: 1,
+            game_over: false,
         }
     }
     
-    // repair damaged ships - like fixing the millennium falcon
-    fn repair_ship(&mut self) {
-        if self.hull_integrity < 100 {
-            self.hull_integrity += 25;
-            if self.hull_integrity > 100 { self.hull_integrity = 100; }
-            println!("{} has been repaired (+25 hull integrity)", self.designation);
-        }
-        self.operational = true;
-    }
-    
-
-}
-
-impl RebelBase {
-    // create yavin 4 base or other rebel outposts
-    fn new(name: String) -> RebelBase {
-        RebelBase {
-            name,
-            has_death_star_plans: false,
-        }
-    }
-    
-    // receive stolen death star plans - key plot point
-    fn receive_death_star_plans(&mut self, from_droid: &Droid) {
-        if from_droid.has_data && from_droid.designation == "r2-d2" {
-            self.has_death_star_plans = true;
-            println!("yavin 4 base has received the death star plans from r2-d2!");
-            println!("general dodonna begins analyzing the technical readouts...");
-        }
-    }
-    
-
-}
-
-
-
-impl Droid {
-    // create r2-d2 and c-3po from movie
-    fn new(designation: String) -> Droid {
-        let has_data = match designation.as_str() {
-            "r2-d2" => true,  // has death star plans
-            _ => false,
-        };
-        
-        Droid {
-            designation,
-            has_data,
-        }
-    }
-}
-
-impl ImperialTransmission {
-    // create intercepted imperial messages for decoding mini-games
-    fn new(encrypted: String, priority: u32, source: String) -> ImperialTransmission {
-        ImperialTransmission {
-            encrypted_message: encrypted,
-            decoded_message: String::new(),
-            priority_level: priority,
-            intercepted_from: source,
-        }
-    }
-    
-    // decode imperial message using string manipulation (like your string tinkerer)
-    fn decode_transmission(&mut self) -> String {
-        // simple cipher - reverse the string and convert case
-        let reversed: String = self.encrypted_message.chars().rev().collect();
-        self.decoded_message = reversed.to_lowercase();
-        
-        println!("transmission decoded from {}", self.intercepted_from);
-        println!("encrypted: {}", self.encrypted_message);
-        println!("decoded: {}", self.decoded_message);
-        
-        self.decoded_message.clone()
-    }
-    
-    // analyze decoded message for intelligence value
-    fn analyze_intel(&self) -> u32 {
-        let intel_value = self.decoded_message.len() as u32 * self.priority_level;
-        println!("intelligence value: {} points", intel_value);
-        intel_value
-    }
-}
-
-// main game struct that manages everything
-struct RebelAllianceCommand {
-    player_name: String,
-    personnel: Vec<RebelPersonnel>,
-    fleet: Vec<Starship>,
-    bases: Vec<RebelBase>,
-    droids: Vec<Droid>,
-    resources: Resources,
-    mission_stats: MissionStats,
-    game_phase: u32, // tracks progression through episode iv plot
-}
-
-impl RebelAllianceCommand {
-    // initialize game with episode iv starting conditions
-    fn new(commander_name: String) -> RebelAllianceCommand {
-        // create main characters from the movie
-        let mut personnel = Vec::new();
-        personnel.push(RebelPersonnel::new(String::from("luke skywalker"), String::from("red five")));
-        personnel.push(RebelPersonnel::new(String::from("princess leia"), String::from("your highness")));
-        personnel.push(RebelPersonnel::new(String::from("han solo"), String::from("captain solo")));
-        personnel.push(RebelPersonnel::new(String::from("chewbacca"), String::from("chewie")));
-        personnel.push(RebelPersonnel::new(String::from("obi-wan kenobi"), String::from("ben kenobi")));
-        
-        // create ships from the movie
-        let mut fleet = Vec::new();
-        fleet.push(Starship::new(String::from("red five"), String::from("x-wing")));
-        fleet.push(Starship::new(String::from("red leader"), String::from("x-wing")));
-        fleet.push(Starship::new(String::from("millennium falcon"), String::from("yt-1300")));
-        
-        // create rebel base
-        let mut bases = Vec::new();
-        bases.push(RebelBase::new(String::from("yavin 4 base")));
-        
-
-        
-        // create droids
-        let mut droids = Vec::new();
-        droids.push(Droid::new(String::from("r2-d2")));
-        droids.push(Droid::new(String::from("c-3po")));
-        
-        RebelAllianceCommand {
-            player_name: commander_name,
-            personnel,
-            fleet,
-            bases,
-            droids,
-            resources: Resources(1000, 500, 100), // credits, fuel, intel
-            mission_stats: MissionStats(0, 0, 0), // success, casualties, objectives
-            game_phase: 1, // start with tatooine/death star plans phase
-        }
-    }
-    
-    // main game loop with different phases matching movie plot
+    // main game loop with real interactions
     fn run_game(&mut self) {
-        println!("========================================");
-        println!("star wars episode iv: a new hope");
-        println!("rebel alliance command center");
-        println!("========================================");
-        println!("welcome, commander {}", self.player_name);
-        println!("the galaxy is in turmoil...");
-        println!("the death star has destroyed alderaan");
-        println!("princess leia's ship has been captured");
-        println!("but the droids escaped with the plans...");
+        self.show_title_and_instructions();
+        
+        while !self.game_over {
+            self.show_status();
+            
+            match self.current_phase {
+                1 => self.phase_rescue_mission(),
+                2 => self.phase_decode_plans(), 
+                3 => self.phase_prepare_assault(),
+                4 => self.phase_death_star_battle(),
+                _ => {
+                    println!("🌟 congratulations! you've completed the rebellion! 🌟");
+                    self.game_over = true;
+                }
+            }
+            
+            // check if commander died
+            if !self.commander.alive {
+                println!("💀 game over! the rebellion has lost its commander!");
+                self.game_over = true;
+            }
+        }
+        
+        self.show_final_results();
+    }
+    
+    // show game instructions and controls
+    fn show_title_and_instructions(&self) {
+        println!("╔════════════════════════════════════════════╗");
+        println!("║        STAR WARS: REBEL COMMAND           ║");
+        println!("║         Episode IV: A New Hope            ║");
+        println!("╚════════════════════════════════════════════╝");
+        println!();
+        println!("🎮 HOW TO PLAY:");
+        println!("• make strategic decisions by typing numbers (1, 2, 3, etc.)");
+        println!("• your choices affect reputation, resources, and story outcome");
+        println!("• high reputation unlocks better options");
+        println!("• collect force points for special abilities");
+        println!("• manage credits to buy upgrades");
+        println!("• complete all 4 phases to destroy the death star!");
+        println!();
+        println!("⚠️  WARNING: bad decisions can kill your commander!");
+        println!();
+        self.wait_for_enter();
+    }
+    
+    // show current game status
+    fn show_status(&self) {
+        println!("\n╔═══════════ COMMAND STATUS ═══════════╗");
+        println!("║ commander: {:<26} ║", self.commander.name);
+        println!("║ reputation: {:<25} ║", format!("{}/100", self.commander.reputation));
+        println!("║ force points: {:<23} ║", self.commander.force_points);
+        println!("║ credits: {:<28} ║", self.commander.credits);
+        println!("║ ships: {:<30} ║", self.ships_available);
+        println!("║ pilots: {:<29} ║", self.pilots_available);
+        println!("║ phase: {:<30} ║", format!("{}/4", self.current_phase));
+        println!("╚═══════════════════════════════════════╝");
+        println!();
+    }
+    
+    // phase 1: rescue princess leia
+    fn phase_rescue_mission(&mut self) {
+        println!("🚀 PHASE 1: RESCUE PRINCESS LEIA");
+        println!("the death star has captured princess leia!");
+        println!("r2-d2 and c-3po have escaped with secret plans.");
+        println!("you must decide how to rescue the princess...");
+        println!();
         
         loop {
-            match self.game_phase {
+            println!("choose your rescue strategy:");
+            println!("1. 🎭 disguise as stormtroopers (risky but stealthy)");
+            println!("2. 💰 hire smugglers han solo & chewbacca (costs 50 credits)");
+            println!("3. ⚔️  direct assault on death star (requires high reputation)");
+            println!("4. 📊 check detailed mission intel first");
+            
+            match self.get_player_choice() {
                 1 => {
-                    println!("\n=== phase 1: rescue mission ===");
-                    if self.phase_one_rescue_leia() {
-                        self.game_phase = 2;
+                    println!("\n🎭 disguising as stormtroopers...");
+                    if self.commander.reputation >= 40 {
+                        println!("✅ mission success! your reputation helped maintain the disguise.");
+                        println!("princess leia rescued! but obi-wan sacrifices himself...");
+                        self.leia_rescued = true;
+                        self.obi_wan_alive = false;
+                        self.commander.gain_reputation(20);
+                        self.commander.gain_force_points(10);
+                        self.current_phase = 2;
+                        break;
+                    } else {
+                        println!("❌ disguise failed! low reputation made guards suspicious.");
+                        println!("you barely escape but leia remains captured.");
+                        self.commander.lose_reputation(10);
+                        continue;
                     }
                 },
                 2 => {
-                    println!("\n=== phase 2: death star plans analysis ===");
-                    if self.phase_two_analyze_plans() {
-                        self.game_phase = 3;
+                    if self.commander.spend_credits(50) {
+                        println!("\n💰 han solo: 'i've got a bad feeling about this...'");
+                        println!("✅ smugglers successfully extract princess leia!");
+                        println!("millennium falcon escapes with everyone alive!");
+                        self.leia_rescued = true;
+                        self.ships_available += 1; // millennium falcon joins fleet
+                        self.commander.gain_reputation(15);
+                        self.current_phase = 2;
+                        break;
+                    } else {
+                        continue; // not enough credits, try again
                     }
                 },
                 3 => {
-                    println!("\n=== phase 3: prepare for battle ===");
-                    if self.phase_three_prepare_assault() {
-                        self.game_phase = 4;
+                    if self.commander.reputation >= 70 {
+                        println!("\n⚔️ launching full rebel assault on death star!");
+                        println!("✅ your legendary reputation inspires the fleet!");
+                        println!("massive battle but leia is rescued!");
+                        self.leia_rescued = true;
+                        self.ships_available -= 2; // lost ships in battle
+                        self.pilots_available -= 3; // casualties
+                        self.commander.gain_reputation(30);
+                        self.current_phase = 2;
+                        break;
+                    } else {
+                        println!("❌ insufficient reputation for assault! rebels refuse dangerous mission.");
+                        println!("build your reputation with successful smaller missions first.");
+                        continue;
                     }
                 },
                 4 => {
-                    println!("\n=== phase 4: death star assault ===");
-                    if self.phase_four_death_star_battle() {
-                        println!("\n🌟 victory! the death star has been destroyed! 🌟");
-                        println!("the rebel alliance has won a major victory!");
-                        break;
-                    } else {
-                        println!("\n💀 defeat! the rebellion has been crushed! 💀");
-                        break;
-                    }
+                    println!("\n📊 MISSION INTEL:");
+                    println!("• death star defenses: extremely heavy");
+                    println!("• imperial presence: maximum alert");
+                    println!("• success probability: depends on your reputation and strategy");
+                    println!("• stealth missions work better with high reputation");
+                    println!("• assault missions need very high reputation (70+)");
+                    println!("• hired help is expensive but reliable");
+                    println!();
+                    continue;
                 },
-                _ => break,
-            }
-            
-            if !self.continue_game() {
-                break;
+                _ => {
+                    println!("❌ invalid choice! enter 1, 2, 3, or 4");
+                    continue;
+                }
             }
         }
-        
-        self.display_final_stats();
     }
     
-    // phase 1: rescue princess leia from death star
-    fn phase_one_rescue_leia(&mut self) -> bool {
-        println!("r2-d2 and c-3po have delivered princess leia's message");
-        println!("'help me obi-wan kenobi, you're my only hope'");
-        println!("obi-wan reveals luke's destiny and the need to rescue leia");
+    // phase 2: decode death star plans
+    fn phase_decode_plans(&mut self) {
+        println!("\n🔍 PHASE 2: DECODE DEATH STAR PLANS");
         
-        // find han solo for the rescue mission
-        println!("\nseeking smuggler for rescue mission...");
-        println!("found han solo and chewbacca at mos eisley cantina");
+        if !self.leia_rescued {
+            println!("❌ without princess leia, the rebels have no access to the plans!");
+            println!("💀 the death star destroys yavin 4 base! game over!");
+            self.commander.alive = false;
+            return;
+        }
         
-        // rescue mission mini-game
-        println!("\ninfiltrating death star detention level...");
-        println!("disguised as stormtroopers, the team locates princess leia");
+        println!("r2-d2 has the complete death star technical readouts!");
+        println!("but the data is encrypted with imperial codes...");
+        println!();
         
-        // combat encounter
-        let mut success = true;
-        for person in &mut self.personnel {
-            if person.name == "luke skywalker" || person.name == "han solo" {
-                if person.combat_skill < 70 {
-                    println!("{} struggles in the firefight!", person.name);
-                    success = false;
+        loop {
+            println!("how do you want to decode the plans?");
+            println!("1. 🤖 use c-3po's protocol skills (slow but safe)");
+            println!("2. 🧠 use force meditation to understand them (costs 5 force points)");
+            println!("3. 💻 hire rebel technicians (costs 30 credits)");
+            println!("4. ⏰ rush the analysis (risky but fast)");
+            
+            match self.get_player_choice() {
+                1 => {
+                    println!("\n🤖 c-3po: 'the probability of successfully decoding this is 3,720 to 1!'");
+                    println!("✅ slow but successful! plans fully decoded!");
+                    println!("discovered weakness: thermal exhaust port!");
+                    self.death_star_plans = true;
+                    self.commander.gain_reputation(10);
+                    self.current_phase = 3;
+                    break;
+                },
+                2 => {
+                    if self.commander.force_points >= 5 {
+                        self.commander.force_points -= 5;
+                        println!("\n🧠 using the force to understand imperial technology...");
+                        if self.obi_wan_alive {
+                            println!("✅ obi-wan guides your meditation! perfect understanding!");
+                            println!("bonus insight: discovered secondary weakness!");
+                            self.death_star_plans = true;
+                            self.commander.gain_reputation(25);
+                            self.commander.gain_force_points(10); // net gain
+                        } else {
+                            println!("✅ obi-wan's spirit helps from beyond! plans decoded!");
+                            self.death_star_plans = true;
+                            self.commander.gain_reputation(15);
+                        }
+                        self.current_phase = 3;
+                        break;
+                    } else {
+                        println!("❌ insufficient force points! you need at least 5.");
+                        continue;
+                    }
+                },
+                3 => {
+                    if self.commander.spend_credits(30) {
+                        println!("\n💻 rebel technicians working around the clock...");
+                        println!("✅ expert analysis complete! weakness identified!");
+                        self.death_star_plans = true;
+                        self.ships_available += 1; // technicians upgrade a ship
+                        self.current_phase = 3;
+                        break;
+                    } else {
+                        continue;
+                    }
+                },
+                4 => {
+                    println!("\n⏰ rushing the analysis with limited time...");
+                    if self.commander.reputation >= 60 {
+                        println!("✅ your reputation attracts the best analysts!");
+                        println!("quick but accurate decode! weakness found!");
+                        self.death_star_plans = true;
+                        self.current_phase = 3;
+                        break;
+                    } else {
+                        println!("❌ rushed analysis produces incomplete data!");
+                        println!("you'll attack the death star without full intel...");
+                        self.death_star_plans = false; // incomplete plans
+                        self.commander.lose_reputation(15);
+                        self.current_phase = 3;
+                        break;
+                    }
+                }
+                _ => {
+                    println!("❌ invalid choice! enter 1, 2, 3, or 4");
+                    continue;
+                }
+            }
+        }
+    }
+    
+    // phase 3: prepare for final assault
+    fn phase_prepare_assault(&mut self) {
+        println!("\n⚔️ PHASE 3: PREPARE FOR BATTLE");
+        println!("the death star is approaching yavin 4!");
+        println!("you have limited time to prepare the final assault...");
+        println!();
+        
+        // give player multiple preparation choices
+        let mut preparations_made = 0;
+        
+        while preparations_made < 2 {
+            println!("preparation options (choose 2):");
+            println!("1. 🎓 train pilots in combat maneuvers");
+            println!("2. 🔧 upgrade ship weapons and shields");
+            println!("3. 👥 recruit additional volunteers");
+            println!("4. 🧘 meditation and force training");
+            println!("5. 📋 review attack strategy");
+            
+            match self.get_player_choice() {
+                1 => {
+                    if preparations_made < 2 {
+                        println!("\n🎓 intensive pilot training session...");
+                        self.pilots_available += 2;
+                        println!("✅ pilot skills improved! +2 experienced pilots");
+                        preparations_made += 1;
+                    } else {
+                        println!("you've already made your preparations!");
+                    }
+                },
+                2 => {
+                    if preparations_made < 2 && self.commander.spend_credits(40) {
+                        println!("\n🔧 upgrading x-wing fighters...");
+                        self.ships_available += 1; // upgraded ship counts as extra
+                        println!("✅ weapons upgraded! fleet effectiveness increased");
+                        preparations_made += 1;
+                    } else if preparations_made >= 2 {
+                        println!("you've already made your preparations!");
+                    }
+                },
+                3 => {
+                    if preparations_made < 2 {
+                        println!("\n👥 recruiting brave volunteers...");
+                        if self.commander.reputation >= 50 {
+                            self.pilots_available += 3;
+                            println!("✅ your reputation attracts many volunteers! +3 pilots");
+                        } else {
+                            self.pilots_available += 1;
+                            println!("✅ some volunteers join! +1 pilot");
+                        }
+                        preparations_made += 1;
+                    } else {
+                        println!("you've already made your preparations!");
+                    }
+                },
+                4 => {
+                    if preparations_made < 2 {
+                        println!("\n🧘 force meditation and spiritual preparation...");
+                        self.commander.gain_force_points(15);
+                        if self.obi_wan_alive {
+                            println!("✅ obi-wan provides advanced training!");
+                            self.commander.gain_force_points(10);
+                        } else {
+                            println!("✅ you feel obi-wan's presence guiding you!");
+                        }
+                        preparations_made += 1;
+                    } else {
+                        println!("you've already made your preparations!");
+                    }
+                },
+                5 => {
+                    println!("\n📋 CURRENT BATTLE READINESS:");
+                    println!("• ships available: {}", self.ships_available);
+                    println!("• pilots available: {}", self.pilots_available);
+                    println!("• death star plans: {}", if self.death_star_plans { "✅ complete" } else { "❌ incomplete" });
+                    println!("• commander reputation: {}/100", self.commander.reputation);
+                    println!("• force points: {}", self.commander.force_points);
+                    println!();
+                    continue;
+                },
+                _ => {
+                    println!("❌ invalid choice! enter 1, 2, 3, 4, or 5");
+                    continue;
                 }
             }
         }
         
-        if success {
-            println!("rescue successful! princess leia has been freed!");
-            println!("the team escapes in the millennium falcon");
-            
-            // obi-wan's sacrifice
-            println!("obi-wan kenobi sacrifices himself facing darth vader");
-            if let Some(obi_wan) = self.personnel.iter_mut().find(|p| p.name == "obi-wan kenobi") {
-                obi_wan.alive = false;
-                println!("obi-wan becomes one with the force...");
-            }
-            
-            // luke's force awakening
-            if let Some(luke) = self.personnel.iter_mut().find(|p| p.name == "luke skywalker") {
-                luke.force_sensitivity += 20;
-                println!("luke feels the force calling to him");
-            }
-            
-            true
-        } else {
-            println!("rescue mission failed! regroup and try again");
-            false
-        }
+        println!("\n✅ preparations complete! ready for final assault!");
+        self.current_phase = 4;
     }
     
-    // phase 2: analyze death star plans and find weakness
-    fn phase_two_analyze_plans(&mut self) -> bool {
-        println!("arriving at yavin 4 rebel base...");
-        println!("r2-d2 delivers the complete technical readouts");
+    // phase 4: death star battle with multiple outcomes
+    fn phase_death_star_battle(&mut self) {
+        println!("\n💥 PHASE 4: DEATH STAR ASSAULT");
+        println!("red squadron launches for the final battle!");
+        println!("the fate of the rebellion rests in your hands...");
+        println!();
         
-        // transfer plans to base
-        if let Some(r2d2) = self.droids.iter().find(|d| d.designation == "r2-d2") {
-            if let Some(base) = self.bases.iter_mut().find(|b| b.name == "yavin 4 base") {
-                base.receive_death_star_plans(r2d2);
-            }
-        }
+        // calculate success probability based on preparations
+        let mut success_chance = 30; // base chance
         
-        // analysis mini-game with general dodonna
-        println!("\ngeneral dodonna: 'the plans show a weakness...'");
-        println!("analyzing death star schematics...");
+        if self.death_star_plans { success_chance += 30; }
+        if self.ships_available >= 8 { success_chance += 20; }
+        if self.pilots_available >= 12 { success_chance += 15; }
+        if self.commander.reputation >= 70 { success_chance += 20; }
         
-        // intelligence gathering game
-        self.decode_imperial_transmissions();
+        println!("📊 mission success probability: {}%", success_chance.min(95));
+        println!();
         
-        // planning session
-        println!("\nrebel council convenes to plan attack");
-        println!("target: thermal exhaust port, 2 meters wide");
-        println!("'that's impossible, even for a computer!' - red leader");
-        println!("'it's not impossible, i used to bulls-eye womp rats' - luke");
-        
-        // prepare luke for the mission
-        if let Some(luke) = self.personnel.iter_mut().find(|p| p.name == "luke skywalker") {
-            luke.train_abilities();
-            println!("luke practices force meditation");
-        }
-        
-        true
-    }
-    
-    // phase 3: prepare rebel fleet for death star assault
-    fn phase_three_prepare_assault(&mut self) -> bool {
-        println!("preparing rebel fleet for death star assault...");
-        
-        // recruit more pilots and ships
-        self.recruit_red_squadron();
-        
-        // briefing room scene
-        println!("\n=== briefing room ===");
-        println!("general dodonna explains the mission:");
-        println!("'the empire's ultimate weapon must be destroyed'");
-        println!("'you'll have to maneuver straight down this trench'");
-        println!("'the target area is only two meters wide'");
-        
-        // ship maintenance
-        println!("\ntechnicians prepare the x-wing fighters");
-        for ship in &mut self.fleet {
-            if ship.ship_class == "x-wing" {
-                ship.repair_ship();
-                println!("{} is fueled and ready", ship.designation);
-            }
-        }
-        
-        // last minute preparations
-        println!("\nfinal preparations before departure...");
-        println!("pilots suit up and conduct pre-flight checks");
-        
-        // han solo's departure and return
-        println!("han solo leaves to pay off jabba the hutt");
-        println!("'may the force be with you' - leia to luke");
-        
-        true
-    }
-    
-    // phase 4: final battle - death star assault
-    fn phase_four_death_star_battle(&mut self) -> bool {
-        println!("red squadron launches from yavin 4!");
-        println!("30 rebel ships vs the death star");
-        
-        // create death star as enemy
-        let mut death_star = Starship::new(String::from("death star"), String::from("death star"));
-        
-        // battle simulation
-        println!("\nengaging tie fighters around the death star...");
-        
-        // multiple attack runs
-        let mut attack_runs = 0;
-        let mut trench_run_successful = false;
-        
-        while attack_runs < 3 && !trench_run_successful {
-            attack_runs += 1;
-            println!("\n--- attack run {} ---", attack_runs);
+        loop {
+            println!("final battle strategy:");
+            println!("1. 🎯 precise targeting run (uses death star plans)");
+            println!("2. ✨ trust in the force (uses force points)");
+            println!("3. 🚀 massive coordinated assault (uses all ships)");
+            println!("4. 🎲 desperate last chance (high risk/reward)");
             
-            match attack_runs {
+            match self.get_player_choice() {
                 1 => {
-                    println!("red leader begins trench run...");
-                    println!("'stay on target... stay on target...'");
-                    println!("red leader is hit! his x-wing is destroyed!");
-                },
-                2 => {
-                    println!("red ten and red twelve attempt the trench...");
-                    println!("tie fighters close in from behind");
-                    println!("'we lost red ten and red twelve!'");
-                },
-                3 => {
-                    println!("luke skywalker makes the final run");
-                    println!("'red five to red leader, i'm going in'");
-                    
-                    if let Some(luke) = self.personnel.iter().find(|p| p.name == "luke skywalker") {
-                        // luke uses the force
-                        println!("'use the force, luke' - obi-wan's voice");
-                        if luke.use_force("thermal exhaust port") {
-                            println!("luke switches off his targeting computer");
-                            println!("'i have you now' - darth vader closing in");
-                            
-                            // han solo's last-minute rescue
-                            println!("'yahoo! you're all clear, kid!' - han solo returns");
-                            println!("han's attack scares off darth vader");
-                            
-                            // the winning shot
-                            println!("luke fires proton torpedoes...");
-                            println!("the torpedoes go straight into the exhaust port!");
-                            println!("luke escapes just as the death star explodes!");
-                            
-                            trench_run_successful = true;
-                            self.mission_stats.2 += 1; // objectives completed
+                    if self.death_star_plans {
+                        println!("\n🎯 following the technical readouts exactly...");
+                        println!("targeting the thermal exhaust port...");
+                        
+                        if success_chance >= 60 {
+                            println!("✅ direct hit! the death star explodes!");
+                            println!("🌟 VICTORY! the rebellion succeeds!");
+                            self.commander.gain_reputation(50);
+                            self.victory_ending();
+                            return;
                         } else {
-                            println!("luke's shot misses the target");
+                            println!("❌ shot missed the exhaust port!");
+                            println!("death star destroys yavin 4! defeat!");
+                            self.defeat_ending();
+                            return;
                         }
+                    } else {
+                        println!("❌ you don't have complete death star plans!");
+                        continue;
                     }
                 },
-                _ => {},
+                2 => {
+                    if self.commander.force_points >= 20 {
+                        println!("\n✨ 'use the force, luke...' - obi-wan's voice");
+                        println!("trusting in the force for the impossible shot...");
+                        
+                        // force always succeeds if you have enough points
+                        println!("✅ the force guides your shot perfectly!");
+                        println!("🌟 INCREDIBLE VICTORY! the death star is destroyed!");
+                        self.commander.gain_reputation(75);
+                        self.force_victory_ending();
+                        return;
+                    } else {
+                        println!("❌ insufficient force points! you need at least 20.");
+                        continue;
+                    }
+                },
+                3 => {
+                    if self.ships_available >= 6 && self.pilots_available >= 10 {
+                        println!("\n🚀 launching all available fighters...");
+                        println!("coordinated assault on multiple targets...");
+                        
+                        if success_chance >= 50 {
+                            println!("✅ overwhelming firepower succeeds!");
+                            println!("🌟 HARD-FOUGHT VICTORY!");
+                            println!("but many brave pilots were lost in the battle...");
+                            self.pilots_available -= 5;
+                            self.ships_available -= 3;
+                            self.costly_victory_ending();
+                            return;
+                        } else {
+                            println!("❌ not enough firepower to penetrate defenses!");
+                            self.defeat_ending();
+                            return;
+                        }
+                    } else {
+                        println!("❌ insufficient ships or pilots for massive assault!");
+                        println!("need at least 6 ships and 10 pilots");
+                        continue;
+                    }
+                },
+                4 => {
+                    println!("\n🎲 desperate kamikaze run at the reactor core...");
+                    println!("this is extremely dangerous but could work...");
+                    
+                    // 50/50 chance regardless of preparation
+                    if self.commander.reputation % 2 == 0 { // simple random based on reputation
+                        println!("✅ miraculous success! sacrifice saves the rebellion!");
+                        println!("🌟 HEROIC VICTORY AT GREAT COST!");
+                        self.commander.alive = false; // commander sacrifices themselves
+                        self.heroic_sacrifice_ending();
+                        return;
+                    } else {
+                        println!("❌ desperate attack fails! all is lost!");
+                        self.defeat_ending();
+                        return;
+                    }
+                },
+                _ => {
+                    println!("❌ invalid choice! enter 1, 2, 3, or 4");
+                    continue;
+                }
             }
         }
-        
-        if trench_run_successful {
-            println!("\n🌟 the death star explodes in a brilliant flash! 🌟");
-            death_star.operational = false;
-            self.mission_stats.0 += 1; // mission success
-            true
-        } else {
-            println!("the assault has failed... yavin 4 will be destroyed");
-            false
+    }
+    
+    // different ending scenarios
+    fn victory_ending(&mut self) {
+        println!("\n🎉 PERFECT VICTORY! 🎉");
+        println!("the death star explodes in a brilliant flash!");
+        println!("yavin 4 is saved and the rebellion lives on!");
+        println!("you are hailed as a hero of the galaxy!");
+        self.game_over = true;
+    }
+    
+    fn force_victory_ending(&mut self) {
+        println!("\n🌟 LEGENDARY FORCE VICTORY! 🌟");
+        println!("your connection to the force guided the impossible shot!");
+        println!("you have become a true jedi knight!");
+        println!("the galaxy will remember this day forever!");
+        self.game_over = true;
+    }
+    
+    fn costly_victory_ending(&mut self) {
+        println!("\n⚔️ COSTLY VICTORY ⚔️");
+        println!("the death star is destroyed but at great cost...");
+        println!("many brave pilots gave their lives for freedom");
+        println!("their sacrifice will never be forgotten");
+        self.game_over = true;
+    }
+    
+    fn heroic_sacrifice_ending(&mut self) {
+        println!("\n🏆 HEROIC SACRIFICE 🏆");
+        println!("your ultimate sacrifice saved the entire rebellion!");
+        println!("you will be remembered as the greatest hero of the war!");
+        println!("statues are built in your honor across the galaxy!");
+        self.game_over = true;
+    }
+    
+    fn defeat_ending(&mut self) {
+        println!("\n💀 DEFEAT 💀");
+        println!("the death star remains operational...");
+        println!("yavin 4 is destroyed and the rebellion is crushed");
+        println!("the empire's tyranny continues across the galaxy");
+        self.commander.alive = false;
+        self.game_over = true;
+    }
+    
+    // get player input with validation
+    fn get_player_choice(&self) -> u32 {
+        loop {
+            print!("👉 enter your choice: ");
+            io::stdout().flush().expect("failed to flush stdout");
+            
+            let mut input = String::new();
+            io::stdin().read_line(&mut input).expect("failed to read input");
+            
+            match input.trim().parse::<u32>() {
+                Ok(choice) => return choice,
+                Err(_) => println!("❌ please enter a valid number!"),
+            }
         }
     }
     
-    // recruit additional pilots for red squadron
-    fn recruit_red_squadron(&mut self) {
-        println!("recruiting additional pilots for red squadron...");
-        
-        // add more x-wings and pilots
-        self.fleet.push(Starship::new(String::from("red two"), String::from("x-wing")));
-        self.fleet.push(Starship::new(String::from("red three"), String::from("x-wing")));
-        self.fleet.push(Starship::new(String::from("red six"), String::from("x-wing")));
-        
-        // add pilots
-        self.personnel.push(RebelPersonnel::new(String::from("biggs darklighter"), String::from("red three")));
-        self.personnel.push(RebelPersonnel::new(String::from("wedge antilles"), String::from("red two")));
-        
-        println!("red squadron now at full strength");
-    }
-    
-    // mini-game: decode imperial transmissions
-    fn decode_imperial_transmissions(&mut self) {
-        println!("\n=== imperial intelligence intercept ===");
-        println!("c-3po has intercepted coded imperial transmissions");
-        
-        // create sample transmissions to decode
-        let mut transmission1 = ImperialTransmission::new(
-            String::from("RATS HTAED EHT FO REWOP EHT"), 
-            8, 
-            String::from("death star command")
-        );
-        
-        let mut transmission2 = ImperialTransmission::new(
-            String::from("DEKCATTA EB LLIW ESAB LEBR"), 
-            9, 
-            String::from("imperial fleet")
-        );
-        
-        println!("decoding intercepted transmissions...");
-        
-        // decode the messages
-        transmission1.decode_transmission();
-        transmission2.decode_transmission();
-        
-        // analyze intelligence value
-        let intel1 = transmission1.analyze_intel();
-        let intel2 = transmission2.analyze_intel();
-        
-        // add to resources
-        self.resources.2 += intel1 + intel2;
-        
-        println!("total intelligence gathered: {} points", intel1 + intel2);
-        println!("rebel intelligence now has critical information");
-    }
-    
-    // display character status
-    fn display_personnel_status(&self) {
-        println!("\n=== rebel personnel status ===");
-        for person in &self.personnel {
-            let status = if person.alive { "alive" } else { "kia" };
-            println!("{} ({}): force: {}, combat: {}, leadership: {} - {} at {}", 
-                person.name, 
-                person.codename,
-                person.force_sensitivity,
-                person.combat_skill,
-                person.leadership,
-                status,
-                person.current_location
-            );
-        }
-    }
-    
-    // display fleet status
-    fn display_fleet_status(&self) {
-        println!("\n=== rebel fleet status ===");
-        for ship in &self.fleet {
-            let status = if ship.operational { "operational" } else { "destroyed" };
-            println!("{} ({}): hull: {}, shields: {}, weapons: {} - {} in {}", 
-                ship.designation,
-                ship.ship_class,
-                ship.hull_integrity,
-                ship.shield_strength,
-                ship.weapons_power,
-                status,
-                ship.current_sector
-            );
-        }
-    }
-    
-    // display resource status
-    fn display_resources(&self) {
-        println!("\n=== resource status ===");
-        println!("credits: {}", self.resources.0);
-        println!("fuel: {}", self.resources.1);
-        println!("intelligence: {}", self.resources.2);
-    }
-    
-    // ask player to continue
-    fn continue_game(&self) -> bool {
-        println!("\npress enter to continue to next phase, or type 'quit' to exit");
+    // wait for enter key
+    fn wait_for_enter(&self) {
+        println!("press enter to continue...");
         let mut input = String::new();
         io::stdin().read_line(&mut input).expect("failed to read input");
-        let input = input.trim().to_lowercase();
-        
-        if input == "quit" || input == "q" {
-            false
-        } else {
-            true
-        }
     }
     
-    // final game statistics
-    fn display_final_stats(&self) {
-        println!("\n========================================");
-        println!("final mission report");
-        println!("========================================");
-        println!("commander: {}", self.player_name);
-        println!("missions successful: {}", self.mission_stats.0);
-        println!("casualties: {}", self.mission_stats.1);
-        println!("objectives completed: {}", self.mission_stats.2);
+    // show final game statistics
+    fn show_final_results(&self) {
+        println!("\n╔══════════ FINAL REPORT ══════════╗");
+        println!("║ commander: {:<23} ║", self.commander.name);
+        println!("║ final reputation: {:<15} ║", format!("{}/100", self.commander.reputation));
+        println!("║ force mastery: {:<18} ║", format!("{} points", self.commander.force_points));
+        println!("║ credits remaining: {:<15} ║", self.commander.credits);
+        println!("║ ships saved: {:<20} ║", self.ships_available);
+        println!("║ pilots survived: {:<16} ║", self.pilots_available);
+        println!("║ leia rescued: {:<19} ║", if self.leia_rescued { "✅ yes" } else { "❌ no" });
+        println!("║ plans decoded: {:<18} ║", if self.death_star_plans { "✅ yes" } else { "❌ no" });
+        println!("╚═══════════════════════════════════╝");
         
-        self.display_personnel_status();
-        self.display_fleet_status();
-        self.display_resources();
+        if self.commander.alive {
+            println!("\n🎖️  you survived to fight another day!");
+        } else {
+            println!("\n⚰️  you gave your life for the rebellion");
+        }
         
-        println!("\nthanks for playing star wars: rebel alliance command!");
-        println!("may the force be with you, always.");
+        println!("\nthanks for playing star wars: rebel command!");
+        println!("may the force be with you, always! ✨");
     }
 }
 
-// main function - game entry point
 fn main() {
     println!("enter your rebel commander name:");
+    print!("👤 name: ");
+    io::stdout().flush().expect("failed to flush stdout");
     
     let mut commander_name = String::new();
-    io::stdin()
-        .read_line(&mut commander_name)
-        .expect("failed to read commander name");
-    
+    io::stdin().read_line(&mut commander_name).expect("failed to read input");
     let commander_name = commander_name.trim().to_string();
     
-    // create and run the game
-    let mut game = RebelAllianceCommand::new(commander_name);
-    game.run_game();
+    if commander_name.is_empty() {
+        println!("using default name: luke skywalker");
+        let mut game = GameState::new(String::from("luke skywalker"));
+        game.run_game();
+    } else {
+        let mut game = GameState::new(commander_name);
+        game.run_game();
+    }
 }
-

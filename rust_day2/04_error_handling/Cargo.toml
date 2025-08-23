@@ -15,4 +15,8 @@ path = "src/result_methods.rs"
 name = "question_operator"
 path = "src/question_operator.rs"
 
+[[bin]]
+name = "file_operations"
+path = "src/file_operations.rs"
+
 [dependencies]

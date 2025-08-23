@@ -1,0 +1,2 @@
+impl warp::filter::FilterClone + warp::filter::FilterBase<Extract = (warp::fs::File,), Error = Rejection>
+warp::filter::and_then::AndThen<warp::filter::and_then::AndThen<impl warp::Filter + warp::filter::FilterBase<Extract = (FullPath,), Error = Infallible> + Copy, {closure@src\api.rs:648:19: 648:47}>, {closure@src\api.rs:655:19: 655:25}>

@@ -1,0 +1,31 @@
+/* app-specific styles */
+
+.error-message {
+  background: rgba(244, 67, 54, 0.1);
+  border: 1px solid #f44336;
+  border-radius: 8px;
+  padding: 1rem;
+  margin: 1rem 0;
+  color: #f44336;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  max-width: 600px;
+  animation: slideIn 0.3s ease;
+}
+
+.error-dismiss {
+  background: transparent;
+  border: 1px solid #f44336;
+  border-radius: 4px;
+  color: #f44336;
+  padding: 0.5rem 1rem;
+  cursor: pointer;
+  font-family: 'Orbitron', monospace;
+  transition: all 0.2s ease;
+}
+
+.error-dismiss:hover {
+  background: #f44336;
+  color: white;
+}

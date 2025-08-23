@@ -3,8 +3,13 @@
 
 use std::io;
 use std::io::Write;
+use std::collections::HashMap;
+use std::sync::{Arc, Mutex};
+
+mod api;
 
 // simplified game structs for better interaction
+#[derive(Clone)]
 struct RebelCommander {
     name: String,
     reputation: u32,     // 0-100, affects available options
@@ -13,6 +18,7 @@ struct RebelCommander {
     alive: bool,
 }
 
+#[derive(Clone)]
 struct GameState {
     commander: RebelCommander,
     ships_available: u32,     // number of ships in fleet
@@ -22,6 +28,7 @@ struct GameState {
     obi_wan_alive: bool,      // affects force training
     current_phase: u32,       // 1-4 game progression
     game_over: bool,
+    preparations_made: u32,   // tracks phase 3 preparations (need 2)
 }
 
 impl RebelCommander {
@@ -77,6 +84,7 @@ impl GameState {
             obi_wan_alive: true,
             current_phase: 1,
             game_over: false,
+            preparations_made: 0,    // start with no preparations
         }
     }
     
@@ -609,7 +617,30 @@ impl GameState {
     }
 }
 
-fn main() {
+#[tokio::main]
+async fn main() {
+    println!("🌟 Star Wars: Rebel Alliance Command Center 🌟");
+    println!("Choose your interface:");
+    println!("1. 🖥️  Terminal Game (original)");
+    println!("2. 🌐 Web Server (for TypeScript frontend)");
+    print!("👉 Choice (1 or 2): ");
+    io::stdout().flush().expect("failed to flush stdout");
+    
+    let mut choice = String::new();
+    io::stdin().read_line(&mut choice).expect("failed to read input");
+    
+    match choice.trim() {
+        "1" => run_terminal_game().await,
+        "2" => run_web_server().await,
+        _ => {
+            println!("Invalid choice! Starting terminal game...");
+            run_terminal_game().await;
+        }
+    }
+}
+
+async fn run_terminal_game() {
+    println!("🎮 Starting terminal game...");
     println!("enter your rebel commander name:");
     print!("👤 name: ");
     io::stdout().flush().expect("failed to flush stdout");
@@ -626,4 +657,26 @@ fn main() {
         let mut game = GameState::new(commander_name);
         game.run_game();
     }
+}
+
+async fn run_web_server() {
+    println!("🚀 Starting web server for TypeScript frontend...");
+    
+    // create game storage
+    let storage: Arc<Mutex<HashMap<String, GameState>>> = Arc::new(Mutex::new(HashMap::new()));
+    
+    // create routes
+    let routes = api::create_routes(storage);
+    
+    println!("🌐 Server running on http://localhost:8080");
+    println!("📁 Place your TypeScript frontend in ./web/dist/");
+    println!("🔗 API endpoints:");
+    println!("   POST /api/game/create - Create new game");
+    println!("   GET  /api/game/:id - Get game state");
+    println!("   POST /api/game/:id/choice - Make choice");
+    println!("💡 Press Ctrl+C to stop server");
+    
+    warp::serve(routes)
+        .run(([127, 0, 0, 1], 8080))
+        .await;
 }

@@ -1,0 +1,9 @@
+[package]
+name = "cows_and_bulls_gui"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+eframe = "0.29"  # egui framework for creating windows
+egui = "0.29"    # the actual gui library
+rand = "0.8"     # for generating random numbers
